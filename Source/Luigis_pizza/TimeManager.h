@@ -6,21 +6,39 @@
 #include "GameFramework/Actor.h"
 #include "TimeManager.generated.h"
 
+class AGameManager;
+
 UCLASS()
 class LUIGIS_PIZZA_API ATimeManager : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
+
+public:
 	ATimeManager();
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Reloj")
+	float Seconds;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Reloj")
+	float SecondsPerDay;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Reloj")
+	float NightStartSeconds;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Reloj")
+	bool IsNight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Reloj")
+	bool IsPaused;
+
+	// Asignar el GameManager de la escena desde el panel Details
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Conexiones")
+	AGameManager* GameManager;
+
+	UFUNCTION(BlueprintCallable, Category = "Reloj")
+	void StartDay();
+
+	UFUNCTION(BlueprintCallable, Category = "Reloj")
+	void EndDay();
 };

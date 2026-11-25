@@ -2,26 +2,62 @@
 
 
 #include "TimeManager.h"
+#include "GameManager.h"
 
-// Sets default values
 ATimeManager::ATimeManager()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Valores de prueba para testear el ciclo rápido
+	Seconds = 0.0f;
+	SecondsPerDay = 120.0f;
+	NightStartSeconds = 60.0f;
+	IsNight = false;
+	IsPaused = false;
 }
 
-// Called when the game starts or when spawned
-void ATimeManager::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-// Called every frame
 void ATimeManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (IsPaused == true)
+	{
+		return;
+	}
+
+	Seconds = Seconds + DeltaTime;
+
+	// Aviso al GameManager cuando pasamos al turno de noche (solo lo lanza una vez)
+	if (Seconds >= NightStartSeconds && IsNight == false)
+	{
+		IsNight = true;
+
+		if (GameManager != nullptr)
+		{
+			GameManager->ChangeState(EGameState::NightShift);
+		}
+	}
+
+	if (Seconds >= SecondsPerDay)
+	{
+		EndDay();
+	}
+}
+
+void ATimeManager::StartDay()
+{
+	Seconds = 0.0f;
+	IsNight = false;
+	IsPaused = false;
+}
+
+void ATimeManager::EndDay()
+{
+	IsPaused = true;
+
+	if (GameManager != nullptr)
+	{
+		GameManager->ChangeState(EGameState::EndOfDay);
+	}
 }
 

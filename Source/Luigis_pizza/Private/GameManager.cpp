@@ -2,26 +2,81 @@
 
 
 #include "GameManager.h"
+#include "../TimeManager.h"
 
-// Sets default values
 AGameManager::AGameManager()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
+	PrimaryActorTick.bCanEverTick = false;
+	Day = 1;
+	CurrentState = EGameState::DayShift;
 }
 
-// Called when the game starts or when spawned
 void AGameManager::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	StartState(EGameState::DayShift);
 }
 
-// Called every frame
-void AGameManager::Tick(float DeltaTime)
+void AGameManager::ChangeState(EGameState NewState)
 {
-	Super::Tick(DeltaTime);
+	if (NewState == CurrentState)
+	{
+		return;
+	}
 
+	EndState(CurrentState);
+	CurrentState = NewState;
+	StartState(CurrentState);
+}
+
+void AGameManager::StartState(EGameState State)
+{
+	switch (State)
+	{
+	case EGameState::DayShift:
+		UE_LOG(LogTemp, Warning, TEXT("Iniciando Turno de Dia. Dia: %d"), Day);
+		if (TimeManager != nullptr && (TimeManager->IsNight || TimeManager->Seconds >= TimeManager->SecondsPerDay))
+		{
+			Day = Day + 1;
+			TimeManager->StartDay();
+		}
+		// TODO: Activar aquí el OrderManager para que empiecen a entrar pedidos
+		break;
+
+	case EGameState::NightShift:
+		UE_LOG(LogTemp, Warning, TEXT("Cambio a Turno de Noche"));
+		// TODO: Cambiar iluminación a noche y subir dificultad/frecuencia de pedidos
+		break;
+
+	case EGameState::EndOfDay:
+		UE_LOG(LogTemp, Warning, TEXT("Fin de jornada"));
+		// TODO: Cortar nuevos pedidos y mostrar UI de ganancias del día
+		break;
+
+	case EGameState::Paused:
+		UE_LOG(LogTemp, Warning, TEXT("Juego pausado"));
+		if (TimeManager != nullptr)
+		{
+			TimeManager->IsPaused = true;
+		}
+		break;
+	}
+}
+
+void AGameManager::EndState(EGameState State)
+{
+	switch (State)
+	{
+	case EGameState::Paused:
+		if (TimeManager != nullptr)
+		{
+			TimeManager->IsPaused = false;
+		}
+		break;
+
+	default:
+		break;
+	}
 }
 
