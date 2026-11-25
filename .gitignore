@@ -1,0 +1,19 @@
+# Unreal Engine
+Binaries/
+Intermediate/
+Saved/
+DerivedDataCache/
+Build/
+Backup/
+
+# Visual Studio
+.vs/
+*.sln
+*.suo
+*.user
+UpgradeLog*.htm
+
+# Local tool files
+.claude/
+CLAUDE.md
+.mcp.json
